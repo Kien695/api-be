@@ -122,3 +122,30 @@ module.exports.otp = async (req, res) => {
     });
   }
 };
+//[post] /api/v1/user/password/reset
+module.exports.reset = async (req, res) => {
+  const token = req.body.token;
+  const password = md5(req.body.password);
+  const user = await User.findOne({
+    token: token,
+  });
+  if (password === user.password) {
+    res.json({
+      code: 400,
+      message: "Vui lòng nhập mật khẩu khác mật khẩu cũ!",
+    });
+    return;
+  }
+  await User.updateOne(
+    {
+      token: token,
+    },
+    {
+      password: password,
+    }
+  );
+  res.json({
+    code: 200,
+    message: "Đổi mật khẩu thành công",
+  });
+};
